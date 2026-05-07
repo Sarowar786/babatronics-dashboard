@@ -188,7 +188,7 @@ export default function LoginPage() {
                 className="w-full h-12"
                 disabled={isLoading}
               >
-                {isLoading ? "Signing in..." : "Sign In"} <ArrowRight />
+                {isLoading ? "logging in..." : "Log In"} <ArrowRight />
               </Button>
 
               {/* Divider */}
