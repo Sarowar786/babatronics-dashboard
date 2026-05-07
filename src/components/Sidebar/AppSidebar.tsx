@@ -33,7 +33,7 @@ import Image from "next/image";
 const menuItems = [
   {
     title: "Dashboard",
-    url: "/dashboard",
+    url: "/",
     icon: Home,
   },
   {
@@ -76,7 +76,7 @@ export function AppSidebar(
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => {
-                const isActive = pathname.startsWith(item.url);
+                const isActive = pathname === item.url || (item.url === "/dashboard" && pathname === "/");
 
                 return (
                   <SidebarMenuItem key={item.title}>

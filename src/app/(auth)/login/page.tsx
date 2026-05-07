@@ -2,18 +2,22 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { FieldValues, useForm } from "react-hook-form";
+import { FieldValues, FormProvider, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import leftimage from "../../../../public/images/company-logo.png";
-import logo from "../../../../public/images/logonav.png";
+import leftimage from "../../../../public/images/leftImage.png";
+import logo from "../../../../public/images/logo.png";
 import { useLoginMutation } from "@/redux/api/authApi";
 import { useDispatch } from "react-redux";
 import { setRefreshToken, setUser } from "@/redux/features/authSlice";
 import toast from "react-hot-toast";
 import { useRouter, useSearchParams } from "next/navigation";
+import { FieldGroup, FieldSet } from "@/components/ui/field";
+import { FormInput } from "@/components/form/FormInput";
+import { ArrowRight, Eye, EyeOff, LockKeyhole, Mail } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
 
-// ✅ 1) Zod schema: rules এখানে define হবে
 const loginSchema = z.object({
   email: z
     .string()
@@ -27,12 +31,9 @@ const loginSchema = z.object({
 });
 
 export default function LoginPage() {
-  // ✅ 3) useForm সেটআপ + zodResolver
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm({
+  const [showPassword, setShowPassword] = useState(false);
+
+  const methods = useForm({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       email: "",
@@ -49,7 +50,7 @@ export default function LoginPage() {
 
   const onSubmit = async (data: FieldValues) => {
     const payload = {
-      identifier: String(data.email).trim(),
+      email: String(data.email).trim(),
       password: String(data.password),
     };
     console.log("payload", payload);
@@ -108,7 +109,6 @@ export default function LoginPage() {
     }
   };
 
-
   return (
     <div className="min-h-screen w-full grid grid-cols-1 lg:grid-cols-2">
       {/* Left: Image */}
@@ -125,7 +125,7 @@ export default function LoginPage() {
       </div>
 
       {/* Right: Form */}
-      <div className="flex items-center justify-center px-6 py-12 bg-gray-50">
+      <div className="flex items-center justify-center px-6 py-12 bg-[#FFF6FA]">
         <div className="w-full max-w-md">
           {/* Logo */}
           <div className="flex flex-col items-center">
@@ -141,76 +141,78 @@ export default function LoginPage() {
           </div>
 
           {/* Form */}
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="mt-8 space-y-4"
-            noValidate
-          >
-            {/* Email */}
-            <div>
-              <label className="text-sm text-gray-700">Email</label>
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className={`mt-1 w-full rounded-lg border px-4 py-3 text-sm outline-none transition
-                  ${errors.email ? "border-red-500" : "border-gray-200 focus:border-orange-500"}
-                `}
-                {...register("email")}
-              />
-              {errors.email && (
-                <p className="mt-1 text-xs text-red-600">
-                  {errors.email.message}
-                </p>
-              )}
-            </div>
+          <FormProvider {...methods}>
+            <form
+              onSubmit={methods.handleSubmit(onSubmit)}
+              className="space-y-6"
+            >
+              <FieldSet>
+                <FieldGroup>
+                  {/* Email */}
+                  <FormInput
+                    name="email"
+                    label="Email"
+                    type="email"
+                    placeholder="you@example.com"
+                    startIcon={{ icon: Mail }}
+                  />
 
-            {/* Password */}
-            <div>
-              <label className="text-sm text-gray-700">Password</label>
-              <input
-                type="password"
-                placeholder="Enter your password"
-                className={`mt-1 w-full rounded-lg border px-4 py-3 text-sm outline-none transition
-                  ${errors.password ? "border-red-500" : "border-gray-200 focus:border-orange-500"}
-                `}
-                {...register("password")}
-              />
-              {errors.password && (
-                <p className="mt-1 text-xs text-red-600">
-                  {errors.password.message}
-                </p>
-              )}
+                  {/* Password */}
+                  <FormInput
+                    name="password"
+                    label="Password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter your password"
+                    startIcon={{ icon: LockKeyhole }}
+                    endIcon={{
+                      icon: showPassword ? EyeOff : Eye,
+                      onClick: () => setShowPassword((prev) => !prev),
+                    }}
+                  />
+                </FieldGroup>
+              </FieldSet>
 
-              <div className="mt-2 flex justify-end">
+              {/* Forgot password */}
+              <div className="flex justify-end -mt-2">
                 <Link
                   href="/forget-password"
-                  className="text-xs text-blue-600 hover:underline"
+                  className="text-sm text-[#52C41A] hover:underline font-medium"
                 >
-                  Forgot Password?
+                  Forgot password?
                 </Link>
               </div>
-            </div>
 
-            {/* Login button */}
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full rounded-lg bg-orange-500 hover:bg-orange-600 transition text-white font-semibold py-3 disabled:opacity-60"
-            >
-              {isSubmitting ? "Logging in..." : "Log In"}
-            </button>
-
-            {/* Footer */}
-            <p className="text-center text-sm text-gray-500 mt-6">
-              Don&apos;t have an account?{" "}
-              <Link
-                href="/register"
-                className="text-orange-500 font-semibold hover:underline"
+              {/* Submit */}
+              <Button
+                type="submit"
+                className="w-full h-12"
+                disabled={isLoading}
               >
-                Register
-              </Link>
-            </p>
-          </form>
+                {isLoading ? "Signing in..." : "Sign In"} <ArrowRight />
+              </Button>
+
+              {/* Divider */}
+              {/* <div className="flex items-center gap-3 my-2">
+          <Separator className="flex-1" />
+          <span className="text-sm text-muted-foreground whitespace-nowrap">
+            Or Continue with
+          </span>
+          <Separator className="flex-1" />
+        </div> */}
+
+              {/* Google */}
+              {/* <Button type="button" variant="outline" className="w-full h-12">
+          <svg width="18" height="18" viewBox="0 0 21 21">
+            <rect width="10" height="10" fill="#f25022" />
+            <rect x="11" width="10" height="10" fill="#7fba00" />
+            <rect y="11" width="10" height="10" fill="#00a4ef" />
+            <rect x="11" y="11" width="10" height="10" fill="#ffb900" />
+          </svg>
+          Sign in with Google
+        </Button> */}
+
+            </form>
+          </FormProvider>
         </div>
       </div>
     </div>

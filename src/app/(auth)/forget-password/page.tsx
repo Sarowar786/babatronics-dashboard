@@ -20,9 +20,9 @@ import { useMemo, useState } from "react";
 
 type ForgotFormValues = {
   email: string;
-  otp?: string; // ✅ optional so TS knows it may exist
+  otp?: string; 
 };
-// ✅ 1) Zod schema: rules এখানে define হবে
+
 const emailOnlySchema = z.object({
   email: z
     .string()
@@ -81,7 +81,6 @@ export default function ForgetPasswordPage() {
         
         toast.success(res?.message || "Code sent!");
 
-        // সফল হলে OTP field দেখাবে + button verify হবে
         setStep("VERIFY");
         return;
       }
