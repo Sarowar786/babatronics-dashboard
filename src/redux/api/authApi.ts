@@ -1,103 +1,125 @@
-import { baseApi } from "@/redux/api/baseApi";
+// src\redux\api\authApi.ts
+import { baseApi } from '@/redux/api/baseApi'
 
 export const authApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     login: builder.mutation({
       query: (credentials) => ({
-        url: "/auth/login/",
-        method: "POST",
+        url: '/merchants/login',
+        method: 'POST',
         body: credentials,
       }),
-      invalidatesTags: ["User"],
+      invalidatesTags: ['User'],
     }),
+
     register: builder.mutation({
-      query: (credentials) => ({
-        url: "/auth/register/",
-        method: "POST",
-        body: credentials,
+      query: (userData) => ({
+        url: '/merchants/register',
+        method: 'POST',
+        body: userData,
       }),
-      invalidatesTags: ["User"],
+      invalidatesTags: ['User'],
     }),
-    socialAuth: builder.mutation({
-      query: (credentials) => ({
-        url: "/auth/social-login",
-        method: "POST",
-        body: credentials,
-      }),
-      invalidatesTags: ["User"],
-    }),
-    forgotPassword: builder.mutation({
-      query: (email) => ({
-        url: "/auth/forgot-password/",
-        method: "POST",
-        body: email,
-      }),
-      invalidatesTags: ["User"],
-    }),
-    resetEmailVerify: builder.mutation({
-      query: (email) => ({
-        url: "/auth/reset-email-verify/",
-        method: "POST",
-        body: email,
-      }),
-      invalidatesTags: ["User"],
-    }),
-    resendOtp: builder.mutation({
-      query: (email) => ({
-        url: "/auth/resend-otp/",
-        method: "POST",
-        body: email,
-      }),
-    }),
-    verifyOtp: builder.mutation({
+
+    verifyEmailOtp: builder.mutation({
       query: (data) => ({
-        url: "/auth/otp-verify/",
-        method: "POST",
+        url: '/merchants/verify-email-otp',
+        method: 'POST',
         body: data,
       }),
     }),
+
+    resendOtp: builder.mutation({
+      query: (data) => ({
+        url: '/merchants/resend-otp',
+        method: 'POST',
+        body: data,
+      }),
+    }),
+
+    forgotPassword: builder.mutation({
+      query: (data) => ({
+        url: '/merchants/forgot-password',
+        method: 'POST',
+        body: data,
+      }),
+    }),
+
     resetPassword: builder.mutation({
       query: (data) => ({
-        url: "/auth/reset-password/",
-        method: "POST",
+        url: '/merchants/reset-password',
+        method: 'POST',
         body: data,
       }),
     }),
+
     changePassword: builder.mutation({
       query: (data) => ({
-        url: "/auth/change-password/",
-        method: "POST",
+        url: '/merchants/change-password',
+        method: 'POST',
         body: data,
       }),
+      invalidatesTags: ['User'],
     }),
+
+    setupMerchant: builder.mutation({
+      query: (data) => ({
+        url: '/merchants/setup-merchant',
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: ['User'],
+    }),
+
     getMe: builder.query({
       query: () => ({
-        url: "/users/me",
-        method: "GET",
+        url: '/merchants/me',
+        method: 'GET',
       }),
-      providesTags: ["User"],
+      providesTags: ['User'],
     }),
-    updateUser: builder.mutation({
+
+    getMerchantProfile: builder.query({
+      query: () => ({
+        url: '/merchants/profile',
+        method: 'GET',
+      }),
+      providesTags: ['User'],
+    }),
+
+     updateProfile: builder.mutation({
       query: (data) => ({
-        url: "/users/profile",
-        method: "PUT",
+        url: '/merchants/profile',
+        method: 'PUT',
         body: data,
       }),
-      invalidatesTags: ["User"],
+      invalidatesTags: ['User'],
+    }),
+
+    getProfileWithEligibility: builder.query({
+      query: () => ({
+        url: '/merchants/profile/eligibility',
+        method: 'GET',
+      }),
+      providesTags: ['User'],
     }),
   }),
-});
+})
 
 export const {
+  // Auth mutations
   useLoginMutation,
   useRegisterMutation,
-  useSocialAuthMutation,
-  useForgotPasswordMutation,
+  useVerifyEmailOtpMutation,
   useResendOtpMutation,
-  useVerifyOtpMutation,
+  useForgotPasswordMutation,
   useResetPasswordMutation,
   useChangePasswordMutation,
+  useSetupMerchantMutation,
+  useUpdateProfileMutation,
+
+  // Queries
   useGetMeQuery,
-  useUpdateUserMutation,
-  useResetEmailVerifyMutation,
-} = authApi;
+  useGetMerchantProfileQuery,
+  useGetProfileWithEligibilityQuery,
+} = authApi

@@ -1,3 +1,4 @@
+// src\app\(dashboardLayout)\settings\page.tsx
 "use client";
 import { BasicForm } from "@/components/Settings/BasicForm";
 import { PasswordForm } from "@/components/Settings/PasswordForm";

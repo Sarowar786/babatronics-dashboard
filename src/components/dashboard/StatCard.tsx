@@ -1,11 +1,21 @@
-import { Card } from "@/components/ui/card";
+// src/components/dashboard/StatCard.tsx
+import { Card } from '@/components/ui/card'
+import { ReactNode } from 'react'
+
+// Types
+interface StatCardProps {
+  title: string
+  value: string | number
+  icon: ReactNode
+  iconBg?: string
+}
 
 export default function StatCard({
   title,
   value,
   icon,
-  iconBg = "bg-yellow-100",
-}: any) {
+  iconBg = 'bg-yellow-100',
+}: StatCardProps): React.ReactElement {
   return (
     <Card className="px-6 py-6 rounded-2xl border-0 shadow-sm hover:shadow-md transition-shadow">
       <div className="flex justify-between items-start">
@@ -22,5 +32,5 @@ export default function StatCard({
         </div>
       </div>
     </Card>
-  );
+  )
 }

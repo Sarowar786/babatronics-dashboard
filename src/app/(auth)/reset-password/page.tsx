@@ -1,3 +1,4 @@
+// src\app\(auth)\reset-password\page.tsx
 "use client";
 import { z } from "zod";
 import { FieldValues, FormProvider, useForm } from "react-hook-form";

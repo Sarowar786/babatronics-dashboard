@@ -1,3 +1,4 @@
+// src\redux\store.ts
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { configureStore } from "@reduxjs/toolkit";
 import {

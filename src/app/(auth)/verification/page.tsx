@@ -1,104 +1,134 @@
-"use client";
+// src/app/(auth)/verification/page.tsx
+'use client'
 
-import { useSearchParams, useRouter } from "next/navigation";
-import { useForm, FormProvider, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import Link from "next/link";
-import { toast } from "sonner";
-import { z } from "zod";
-import { Button } from "@/components/ui/button";
+import { useSearchParams, useRouter } from 'next/navigation'
+import { useForm, FormProvider, Controller } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import Link from 'next/link'
+import { toast } from 'sonner'
+import { z } from 'zod'
+import { Button } from '@/components/ui/button'
 
 import {
   InputOTP,
   InputOTPGroup,
   InputOTPSlot,
-} from "@/components/ui/input-otp";
+} from '@/components/ui/input-otp'
 
 import {
-  useVerifyOtpMutation,
+  useVerifyEmailOtpMutation,
   useResendOtpMutation,
-} from "@/redux/api/authApi";
-import SectionHeader from "@/components/common/SectionHeader";
+} from '@/redux/api/authApi'
+import SectionHeader from '@/components/common/SectionHeader'
+
+// Types
+interface VerifyOtpResponse {
+  success: boolean
+  message?: string
+  data?: {
+    reset_token?: string
+  }
+}
+
+interface ApiError {
+  data?: {
+    errors?: {
+      non_field_errors?: string[]
+      email?: string[]
+    }
+    message?: string
+  }
+  message?: string
+}
+
+interface OtpFormValues {
+  otp: string
+}
 
 export const otpSchema = z.object({
-  otp: z.string().length(4, "OTP must be 4 digits"),
-});
+  otp: z.string().length(4, 'OTP must be 4 digits'),
+})
 
-export default function VerifyOtpPage() {
-  const params = useSearchParams();
-  const router = useRouter();
+export default function VerifyOtpPage(): React.ReactElement {
+  const params = useSearchParams()
+  const router = useRouter()
 
-  const email = params.get("email");
-  const forgotPassword = params.get("forgot-password");
-  const [verifyOtp, { isLoading }] = useVerifyOtpMutation();
-  const [resendOtp, { isLoading: resendLoading }] = useResendOtpMutation();
+  const email = params.get('email')
+  const forgotPassword = params.get('forgot-password')
+  const [verifyOtp, { isLoading }] = useVerifyEmailOtpMutation()
+  const [resendOtp, { isLoading: resendLoading }] = useResendOtpMutation()
 
-  const methods = useForm({
+  const methods = useForm<OtpFormValues>({
     resolver: zodResolver(otpSchema),
     defaultValues: {
-      otp: "",
+      otp: '',
     },
-  });
+  })
 
   const {
     control,
     handleSubmit,
     formState: { errors },
-  } = methods;
+  } = methods
 
   // Submit
-  const onSubmit = async (data: { otp: string }) => {
+  const onSubmit = async (data: OtpFormValues): Promise<void> => {
     try {
       if (!email) {
-        toast.error("Email not found ❌");
-        return;
+        toast.error('Email not found ❌')
+        return
       }
       console.log({
         email,
         otp: data.otp,
-      });
-      const res=await verifyOtp({
+      })
+      const res = (await verifyOtp({
         email,
         otp: data.otp,
-      }).unwrap();
-      
+      }).unwrap()) as VerifyOtpResponse
+
       toast.success(
-        forgotPassword === "success"
-          ? "OTP verified! Reset your password."
-          : "OTP verified! Please log in.",
-      );
+        forgotPassword === 'success'
+          ? 'OTP verified! Reset your password.'
+          : 'OTP verified! Please log in.',
+      )
 
-      //  redirect with email
-      forgotPassword === "success"
-        ? router.push(`/reset-password?token=${res?.data?.reset_token}`)
-        : router.push(`/login`);
-    } catch (error: any) {
-      console.log(error);
+      // redirect with email
+      if (forgotPassword === 'success') {
+        router.push(`/reset-password?token=${res?.data?.reset_token}`)
+      } else {
+        router.push(`/login`)
+      }
+    } catch (error: unknown) {
+      console.log(error)
 
-      const err = error?.data;
+      const err = error as ApiError
+      const errorData = err?.data
 
       // Priority based message extract
       const message =
-        err?.errors?.non_field_errors?.[0] ||
-        err?.errors?.email?.[0] ||
+        errorData?.errors?.non_field_errors?.[0] ||
+        errorData?.errors?.email?.[0] ||
+        errorData?.message ||
         err?.message ||
-        "OTP verification failed ❌";
+        'OTP verification failed ❌'
 
-      toast.error(message);
+      toast.error(message)
     }
-  };
+  }
 
   // Resend OTP
-  const handleResend = async () => {
+  const handleResend = async (): Promise<void> => {
     try {
-      if (!email) return;
+      if (!email) return
 
-      await resendOtp({ email }).unwrap();
-      toast.success("OTP sent again 📩");
-    } catch (error: any) {
-      toast.error(error?.data?.message || "Failed to resend OTP ❌");
+      await resendOtp({ email }).unwrap()
+      toast.success('OTP sent again 📩')
+    } catch (error: unknown) {
+      const err = error as ApiError
+      toast.error(err?.data?.message || 'Failed to resend OTP ❌')
     }
-  };
+  }
 
   return (
     <div className="h-screen flex items-center justify-center bg-[#FFF6FA] px-4">
@@ -151,18 +181,18 @@ export default function VerifyOtpPage() {
                 disabled={resendLoading}
                 className="text-sm text-primary hover:underline disabled:opacity-50"
               >
-                {resendLoading ? "Sending..." : "Resend OTP"}
+                {resendLoading ? 'Sending...' : 'Resend OTP'}
               </button>
             </div>
 
             {/* Submit */}
             <Button type="submit" className="w-full h-12" disabled={isLoading}>
-              {isLoading ? "Verifying..." : "Verify OTP"}
+              {isLoading ? 'Verifying...' : 'Verify OTP'}
             </Button>
 
             {/* Back */}
             <p className="text-center text-sm text-muted-foreground pt-2">
-              Wrong email?{" "}
+              Wrong email?{' '}
               <Link
                 href="/forget-password"
                 className="text-primary font-semibold hover:underline"
@@ -174,5 +204,5 @@ export default function VerifyOtpPage() {
         </FormProvider>
       </div>
     </div>
-  );
+  )
 }

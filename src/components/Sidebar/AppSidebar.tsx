@@ -1,114 +1,91 @@
-"use client";
+// src\components\Sidebar\AppSidebar.tsx
+'use client'
 
-import * as React from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { useAuth } from '@/hooks/useAuth'
 import {
   Sidebar,
   SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
+  SidebarFooter,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarFooter,
-  SidebarRail,
-} from "@/components/ui/sidebar";
-
+} from '@/components/ui/sidebar'
 import {
-  Home,
-  Package,
-  ShoppingCart,
-  MessageSquare,
-  User,
-  LogOut,
+  LayoutDashboard,
+  Store,
+  Webhook,
+  Activity,
+  FileText,
+  Server,
   Settings,
-} from "lucide-react";
-import Image from "next/image";
+  LogOut,
+  AlertTriangle,
+  CreditCard,
+  BarChart3,
+  Menu,
+} from 'lucide-react'
 
-// 🔥 MENU CONFIG (clean & scalable)
-const menuItems = [
-  {
-    title: "Dashboard",
-    url: "/",
-    icon: Home,
-  },
-  {
-    title: "Marchents",
-    url: "/marchents",
-    icon: Package,
-  },
-  {
-    title: "Settings",
-    url: "/settings",
-    icon:Settings,
-  },
-];
+const navigation = [
+  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { name: 'Merchants', href: '/merchants', icon: Store },
+  { name: 'Webhooks', href: '/webhooks', icon: Webhook },
+  { name: 'API Logs', href: '/api-logs', icon: Activity },
+  { name: 'Failed Filings', href: '/filings/failed', icon: AlertTriangle },
+  { name: 'System Health', href: '/health', icon: Server },
+  { name: 'Reports', href: '/reports', icon: FileText },
+  { name: 'Analytics', href: '/analytics', icon: BarChart3 },
+  { name: 'Billing', href: '/billing', icon: CreditCard },
+  { name: 'Settings', href: '/settings', icon: Settings },
+]
 
-export function AppSidebar(
-  props: React.ComponentProps<typeof Sidebar>
-) {
-  const pathname = usePathname();
+export function AppSidebar() {
+  const pathname = usePathname()
+  const { user, logout } = useAuth()
 
   return (
-    <Sidebar {...props} className="bg-white">
-
-      {/* ================= HEADER ================= */}
-      <SidebarHeader>
-        <div className="px-2 py-4">
-          <Image
-            src="/images/logo.png"
-            alt="Logo"
-            width={150}
-            height={40}
-          />
+    <Sidebar>
+      <SidebarHeader className="border-b px-4 py-4">
+        <div className="flex items-center gap-2">
+          <Menu className="h-5 w-5" />
+          <h1 className="text-lg font-bold text-blue-600">TitaTax Admin</h1>
         </div>
+        <p className="text-xs text-gray-500 mt-1 truncate">
+          {user?.email || 'Admin'}
+        </p>
       </SidebarHeader>
 
-      {/* ================= MENU ================= */}
-      <SidebarContent className="w-60">
-        <SidebarGroup>
-          <SidebarGroupLabel className="uppercase">Management</SidebarGroupLabel>
-
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {menuItems.map((item) => {
-                const isActive = pathname === item.url || (item.url === "/dashboard" && pathname === "/");
-
-                return (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={isActive}
-                      className="data-[active=true]:bg-black data-[active=true]:text-white h-15 rounded-2xl px-8 tracking-wide text-lg"
-                    >
-                      <Link href={item.url} className="flex items-center gap-3">
-                        <item.icon className="w-4 h-4" />
-                        {item.title}
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+      <SidebarContent>
+        <SidebarMenu>
+          {navigation.map((item) => {
+            const isActive =
+              pathname === item.href || pathname?.startsWith(item.href + '/')
+            return (
+              <SidebarMenuItem key={item.name}>
+                <SidebarMenuButton asChild isActive={isActive}>
+                  <Link href={item.href}>
+                    <item.icon className="h-4 w-4" />
+                    <span>{item.name}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            )
+          })}
+        </SidebarMenu>
       </SidebarContent>
 
-      {/* ================= FOOTER ================= */}
-      <SidebarFooter>
-        <div className="p-3">
-          <button className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-red-500 hover:bg-red-50 transition">
-            <LogOut className="w-4 h-4" />
-            Logout
-          </button>
-        </div>
+      <SidebarFooter className="border-t p-4">
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton onClick={logout}>
+              <LogOut className="h-4 w-4 text-red-500" />
+              <span className="text-red-500">Logout</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarFooter>
-
-      <SidebarRail />
     </Sidebar>
-  );
+  )
 }

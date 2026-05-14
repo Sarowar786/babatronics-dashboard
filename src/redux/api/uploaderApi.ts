@@ -1,3 +1,4 @@
+// src\redux\api\uploaderApi.ts
 import { baseApi } from "./baseApi";
 
 const uploaderApi = baseApi.injectEndpoints({
